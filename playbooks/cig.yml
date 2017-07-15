@@ -1,6 +1,7 @@
 ---
 - hosts: cig
   become: yes
+  gather_facts: yes
   vars:
     grafana_url: http://{{ grafana_http_addr | default('localhost') }}:{{ grafana_http_port | default(3000) }}
   roles:
@@ -34,7 +35,17 @@
       set_fact:
         grafana_sess: "{{ grafana_login.set_cookie | regex_replace('grafana_sess=(.*?); .*', '\\1') }}"
 
-    - name: add data source
+    - name: get current data sources
+      uri:
+        url: "{{ grafana_url }}/api/datasources"
+        headers:
+          Cookie: grafana_sess={{ grafana_sess }}
+      register: data_sources
+
+    - debug: var=data_sources
+
+    - name: add prometheus data source
+      when: "'prometheus' not in data_sources.json | map(attribute='name')"
       uri:
         url: "{{ grafana_url }}/api/datasources"
         method: POST
