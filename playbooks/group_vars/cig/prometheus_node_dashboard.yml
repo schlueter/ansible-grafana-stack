@@ -162,83 +162,21 @@ prometheus_node_dashboard: {
       },
       {
         "panels": [
-          {
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "datasource": "prometheus",
-            "fill": 1,
-            "grid": {},
-            "lines": true,
-            "linewidth": 2,
-            "links": [],
-            "nullPointMode": "connected",
-            "percentage": false,
-            "pointradius": 5,
-            "points": false,
-            "renderer": "flot",
-            "seriesOverrides": [
-              {
-                "alias": "node_memory_SwapFree{instance=\"172.17.0.1:9100\",job=\"prometheus\"}",
-                "yaxis": 2
-              }
-            ],
-            "spaceLength": 10,
-            "span": 12,
-            "stack": false,
-            "steppedLine": false,
-            "targets": [
-              {
-                "expr": "node_memory_MemTotal{instance=~\"$server\"} - node_memory_MemAvailable{instance=~\"$server\"}",
-                "format": "time_series",
-                "intervalFactor": 2,
-                "legendFormat": "unavailable",
-                "metric": "memo",
-                "refId": "A",
-                "step": 4,
-                "target": ""
-              }
-            ],
-            "thresholds": [],
-            "timeFrom": null,
-            "timeShift": null,
-            "title": "Memory",
-            "tooltip": {
-              "msResolution": false,
-              "shared": true,
-              "sort": 0,
-              "value_type": "cumulative"
-            },
-            "type": "graph",
-            "xaxis": {
-              "buckets": null,
-              "mode": "time",
-              "name": null,
-              "show": true,
-              "values": []
-            },
-            "yaxes": [
-              {
-                "format": "bytes",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              },
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              }
-            ]
-          }
-        ]
-      },
-      {
+          { "title": "Memory"
+          , "type": "graph"
+          , "datasource": "prometheus"
+          , "renderer": "flot"
+          , "span": 12
+          , "xaxis": { "mode": "time" }
+          , "yaxes": [ { "format": "bytes" }, { "format": "short" } ]
+          , "seriesOverrides": [{ "alias": "node_memory_SwapFree{instance=\"172.17.0.1:9100\",job=\"prometheus\"}" , "yaxis": 2 }]
+          , "targets": [
+              { "expr": "node_memory_MemTotal{instance=~\"$server\"} - node_memory_MemAvailable{instance=~\"$server\"}"
+              , "format": "time_series"
+              , "legendFormat": "available"
+              }]
+          }]
+      },{
         "panels": [
           {
             "bars": false,
@@ -356,7 +294,6 @@ prometheus_node_dashboard: {
               "thresholdLabels": false,
               "thresholdMarkers": true
             },
-            "id": 7,
             "interval": null,
             "links": [],
             "mappingType": 1,
