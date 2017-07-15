@@ -178,179 +178,47 @@ prometheus_node_dashboard: {
           }]
       },{
         "panels": [
-          {
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "datasource": "prometheus",
-            "fill": 1,
-            "grid": {},
-            "lines": true,
-            "linewidth": 2,
-            "links": [],
-            "nullPointMode": "connected",
-            "percentage": false,
-            "pointradius": 5,
-            "points": false,
-            "renderer": "flot",
-            "seriesOverrides": [
-              {
-                "alias": "read",
-                "yaxis": 1
+          { "title": "Disk usage"
+          , "type": "graph"
+          , "datasource": "prometheus"
+          , "renderer": "flot"
+          , "xaxis": { "mode": "time" }
+          , "yaxes": [ { "format": "bytes" }, { "format": "ms" } ]
+          , "seriesOverrides": [
+              { "alias": "read", "yaxis": 1 }
+            , { "alias": "{instance=\"172.17.0.1:9100\"}", "yaxis": 2 }
+            , { "alias": "io time", "yaxis": 2 }]
+          , "span": 10
+          , "targets": [
+              { "expr": "sum by (instance) (irate(node_disk_bytes_read{instance=~\"$server\"}[5m]))"
+              , "format": "time_series"
+              , "legendFormat": "read"
               },
-              {
-                "alias": "{instance=\"172.17.0.1:9100\"}",
-                "yaxis": 2
+              { "expr": "sum by (instance) (irate(node_disk_bytes_written{instance=~\"$server\"}[5m]))"
+              , "format": "time_series"
+              , "legendFormat": "written"
               },
-              {
-                "alias": "io time",
-                "yaxis": 2
-              }
-            ],
-            "spaceLength": 10,
-            "span": 10,
-            "stack": false,
-            "steppedLine": false,
-            "targets": [
-              {
-                "expr": "sum by (instance) (irate(node_disk_bytes_read{instance=~\"$server\"}[5m]))",
-                "format": "time_series",
-                "hide": false,
-                "intervalFactor": 4,
-                "legendFormat": "read",
-                "refId": "A",
-                "step": 8,
-                "target": ""
-              },
-              {
-                "expr": "sum by (instance) (irate(node_disk_bytes_written{instance=~\"$server\"}[5m]))",
-                "format": "time_series",
-                "intervalFactor": 4,
-                "legendFormat": "written",
-                "refId": "B",
-                "step": 8
-              },
-              {
-                "expr": "sum by (instance) (irate(node_disk_io_time_ms{instance=~\"$server\"}[5m]))",
-                "format": "time_series",
-                "intervalFactor": 4,
-                "legendFormat": "io time",
-                "refId": "C",
-                "step": 8
-              }
-            ],
-            "thresholds": [],
-            "timeFrom": null,
-            "timeShift": null,
-            "title": "Disk usage",
-            "tooltip": {
-              "msResolution": false,
-              "shared": true,
-              "sort": 0,
-              "value_type": "cumulative"
-            },
-            "type": "graph",
-            "xaxis": {
-              "buckets": null,
-              "mode": "time",
-              "name": null,
-              "show": true,
-              "values": []
-            },
-            "yaxes": [
-              {
-                "format": "bytes",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              },
-              {
-                "format": "ms",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              }
-            ]
+              { "expr": "sum by (instance) (irate(node_disk_io_time_ms{instance=~\"$server\"}[5m]))"
+              , "format": "time_series"
+              , "legendFormat": "io time"
+              }]
           },
-          {
-            "cacheTimeout": null,
-            "colorBackground": false,
-            "colorValue": false,
-            "colors": [
-              "rgba(245, 54, 54, 0.9)",
-              "rgba(237, 129, 40, 0.89)",
-              "rgba(50, 172, 45, 0.97)"
-            ],
-            "datasource": "prometheus",
-            "format": "percentunit",
-            "gauge": {
-              "maxValue": 1,
-              "minValue": 0,
-              "show": true,
-              "thresholdLabels": false,
-              "thresholdMarkers": true
-            },
-            "interval": null,
-            "links": [],
-            "mappingType": 1,
-            "mappingTypes": [
-              {
-                "name": "value to text",
-                "value": 1
-              },
-              {
-                "name": "range to text",
-                "value": 2
-              }
-            ],
-            "maxDataPoints": 100,
-            "nullPointMode": "connected",
-            "nullText": null,
-            "postfix": "",
-            "postfixFontSize": "50%",
-            "prefix": "",
-            "prefixFontSize": "50%",
-            "rangeMaps": [
-              {
-                "from": "null",
-                "text": "N/A",
-                "to": "null"
-              }
-            ],
-            "span": 2,
-            "sparkline": {
-              "fillColor": "rgba(31, 118, 189, 0.18)",
-              "full": false,
-              "lineColor": "rgb(31, 120, 193)",
-              "show": false
-            },
-            "tableColumn": "",
-            "targets": [
-              {
-                "expr": "min(node_filesystem_free{instance=~\"$server\"} / node_filesystem_size{instance=~\"$server\"})",
-                "format": "time_series",
-                "intervalFactor": 2,
-                "refId": "A",
-                "step": 60,
-                "target": ""
-              }
-            ],
-            "thresholds": "0.10, 0.25",
-            "title": "Free disk space (lowest mountpoint)",
-            "type": "singlestat",
-            "valueFontSize": "80%",
-            "valueMaps": [
-              {
-                "op": "=",
-                "text": "N/A",
-                "value": "null"
-              }
-            ],
-            "valueName": "current"
+          { "title": "Free disk space (lowest mountpoint)"
+          , "type": "singlestat"
+          , "datasource": "prometheus"
+          , "format": "percentunit"
+          , "thresholds": "0.10, 0.25"
+          , "span": 2
+          , "gauge": { "maxValue": 1
+                     , "minValue": 0
+                     , "show": true
+                     , "thresholdLabels": false
+                     , "thresholdMarkers": true
+                     }
+          , "targets": [{ "expr": "min(node_filesystem_free{instance=~\"$server\"} / node_filesystem_size{instance=~\"$server\"})"
+                        , "format": "time_series"
+                        , "step": 60
+                        }]
           }
         ]
       },
