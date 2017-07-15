@@ -4,15 +4,43 @@
   roles:
     - prometheus
   tasks:
-
     - name: install grafana
       apt: deb={{ grafana_release_url }}/{{ grafana_deb }}
+      notify: restart grafana
 
     - name: enable and restart some services
       systemd:
         daemon_reload=yes
         enabled=yes
-        state=restarted
-        name={{ item }}
-      with_items:
-        - grafana-server
+        name=grafana-server
+
+    - name: login to grafana
+      uri: >
+        url=http://{{ grafana_http_addr | default('localhost') }}:{{ grafana_http_port | default(3000) }}/login
+        method=POST
+        body='{"user": "{{ grafana_admin_user | default('admin') }}", "password": "{{ grafana_admin_password | default('admin') }}"}'
+        body_format=json
+      register: grafana_login
+
+    - name: extract grafana_sess
+      set_fact:
+        grafana_sess: "{{ grafana_login.set_cookie | regex_replace('grafana_sess=(.*?); .*', '\\1') }}"
+
+    - name: add data source
+      uri:
+        url: "http://{{ grafana_http_addr | default('localhost') }}:{{ grafana_http_port | default(3000) }}/api/datasources"
+        method: POST
+        body:
+          name: prometheus
+          type: prometheus
+          url: http://localhost:9090
+          access: proxy
+        body_format: json
+        headers:
+          Cookie: grafana_sess={{ grafana_sess }}
+
+    # curl 'http://192.168.29.7:3000/api/dashboards/import' \ -H 'Content-Type: application/json' \ -H "Cookie: grafana_sess=$grafana_sess" \ --data @<(cat <<EOF {{ some dashboard JSON }} EOF )
+  handlers:
+    - name: restart grafana
+      systemd: name=grafana-server state=restarted
+
