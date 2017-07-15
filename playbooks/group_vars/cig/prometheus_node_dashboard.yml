@@ -4,11 +4,8 @@ prometheus_node_dashboard: {
     "title": "{{ ansible_date_time.epoch }}",
     "rows": [
       {
-        "collapse": false,
-        "height": "250px",
         "panels": [
           {
-            "aliasColors": {},
             "bars": false,
             "dashLength": 10,
             "dashes": false,
@@ -88,7 +85,6 @@ prometheus_node_dashboard: {
             ]
           },
           {
-            "aliasColors": {},
             "bars": false,
             "dashLength": 10,
             "dashes": false,
@@ -199,7 +195,6 @@ prometheus_node_dashboard: {
         "height": "250",
         "panels": [
           {
-            "aliasColors": {},
             "bars": false,
             "dashLength": 10,
             "dashes": false,
@@ -298,7 +293,6 @@ prometheus_node_dashboard: {
         "height": "250px",
         "panels": [
           {
-            "aliasColors": {},
             "bars": false,
             "dashLength": 10,
             "dashes": false,
@@ -500,7 +494,6 @@ prometheus_node_dashboard: {
         "height": "250px",
         "panels": [
           {
-            "aliasColors": {},
             "bars": false,
             "dashLength": 10,
             "dashes": false,
