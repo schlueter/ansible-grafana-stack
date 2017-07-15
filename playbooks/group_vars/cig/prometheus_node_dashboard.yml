@@ -113,88 +113,25 @@ prometheus_node_dashboard: {
       {
         "panels": [
           {
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
             "datasource": "prometheus",
-            "fill": 1,
-            "grid": {},
-            "lines": true,
-            "linewidth": 2,
-            "links": [],
-            "nullPointMode": "connected",
-            "percentage": false,
-            "pointradius": 5,
-            "points": false,
+            "title": "Data transfer",
+            "type": "graph",
             "renderer": "flot",
-            "seriesOverrides": [
-              {
-                "alias": "transmitted ",
-                "yaxis": 2
-              }
-            ],
-            "spaceLength": 10,
+            "seriesOverrides": [ { "yaxis": 2 } ],
             "span": 12,
-            "stack": false,
-            "steppedLine": false,
             "targets": [
               {
                 "expr": "irate(node_network_receive_bytes{instance=~\"$server\",device!~\"lo\"}[5m])",
                 "format": "time_series",
-                "hide": false,
-                "intervalFactor": 2,
                 "legendFormat": "{{ '{{device}}' }} received",
-                "refId": "A",
-                "step": 4,
-                "target": ""
               },
               {
                 "expr": "irate(node_network_transmit_bytes{instance=~\"$server\",device!~\"lo\"}[5m])",
                 "format": "time_series",
-                "hide": false,
-                "intervalFactor": 2,
                 "legendFormat": "{{ '{{device}}' }} transmitted ",
-                "refId": "B",
-                "step": 4,
-                "target": ""
               }
             ],
-            "thresholds": [],
-            "timeFrom": null,
-            "timeShift": null,
-            "title": "Data transfer",
-            "tooltip": {
-              "msResolution": false,
-              "shared": true,
-              "sort": 0,
-              "value_type": "cumulative"
-            },
-            "type": "graph",
-            "xaxis": {
-              "buckets": null,
-              "mode": "time",
-              "name": null,
-              "show": true,
-              "values": []
-            },
-            "yaxes": [
-              {
-                "format": "Bps",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              },
-              {
-                "format": "bytes",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": false
-              }
-            ]
+            "yaxes": [{ "format": "Bps" }, {}]
           }
         ]
       }
