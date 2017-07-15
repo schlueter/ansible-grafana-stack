@@ -46,11 +46,9 @@
           Cookie: grafana_sess={{ grafana_sess }}
       register: data_sources
 
-    - debug: var=data_sources
-
     - name: add prometheus data source
       when: "'prometheus' not in data_sources.json | map(attribute='name')"
-      uri:
+      uri: &grafana_uri_args
         url: "{{ grafana_url }}/api/datasources"
         method: POST
         body:
@@ -62,14 +60,11 @@
         headers:
           Cookie: grafana_sess={{ grafana_sess }}
 
-    - name: add data source
+    - name: Import dashboard
       uri:
+        <<: *grafana_uri_args
         url: "{{ grafana_url }}/api/dashboards/import"
-        method: POST
         body: "{{ prometheus_node_dashboard | to_json }}"
-        body_format: json
-        headers:
-          Cookie: grafana_sess={{ grafana_sess }}
 
   handlers:
     - name: restart grafana
