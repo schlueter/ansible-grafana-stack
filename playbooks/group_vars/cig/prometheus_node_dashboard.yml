@@ -1,162 +1,50 @@
 ---
 prometheus_node_dashboard: {
   "dashboard": {
-    "title": "{{ ansible_date_time.epoch }}",
-    "rows": [
-      {
-        "panels": [
-          {
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "datasource": "prometheus",
-            "fill": 1,
-            "grid": {},
-            "lines": true,
-            "linewidth": 2,
-            "links": [],
-            "nullPointMode": "connected",
-            "percentage": false,
-            "pointradius": 5,
-            "points": false,
-            "renderer": "flot",
-            "seriesOverrides": [],
-            "spaceLength": 10,
-            "span": 6,
-            "stack": false,
-            "steppedLine": false,
-            "targets": [
-              {
-                "expr": "100 - (avg by (cpu) (irate(node_cpu{mode=\"idle\", instance=~\"$server\"}[5m])) * 100)",
-                "hide": false,
-                "intervalFactor": 10,
-                "legendFormat": "{{ '{{cpu}}' }}",
-                "refId": "A",
-                "step": 50
-              }
-            ],
-            "thresholds": [],
-            "timeFrom": null,
-            "timeShift": null,
-            "title": "Idle cpu",
-            "tooltip": {
-              "msResolution": false,
-              "shared": true,
-              "sort": 0,
-              "value_type": "cumulative"
-            },
-            "type": "graph",
-            "xaxis": {
-              "buckets": null,
-              "mode": "time",
-              "name": null,
-              "show": true,
-              "values": []
-            },
-            "yaxes": [
-              {
-                "format": "percent",
-                "label": "cpu usage",
-                "logBase": 1,
-                "max": 100,
-                "min": 0,
-                "show": true
-              },
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              }
-            ]
+    "title": "{{ ansible_date_time.epoch }}"
+  , "rows": [
+      { "panels": [
+          { "title": "Idle cpu"
+          , "type": "graph"
+          , "datasource": "prometheus"
+          , "renderer": "flot"
+          , "span": 6
+          , "xaxis": { "mode": "time" }
+          , "yaxes": [{ "format": "percent"
+                      , "label": "cpu usage"
+                      , "show": true
+                      , "max": 100
+                      , "min": 0
+                      },
+                      { "format": "short" }]
+          , "targets": [
+              { "expr": "100 - (avg by (cpu) (irate(node_cpu{mode=\"idle\", instance=~\"$server\"}[5m])) * 100)"
+              , "legendFormat": "{{ '{{cpu}}' }}"
+              }]
           },
-          {
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "datasource": "prometheus",
-            "fill": 1,
-            "grid": {},
-            "lines": true,
-            "linewidth": 2,
-            "links": [],
-            "nullPointMode": "connected",
-            "percentage": false,
-            "pointradius": 5,
-            "points": false,
-            "renderer": "flot",
-            "seriesOverrides": [],
-            "spaceLength": 10,
-            "span": 6,
-            "stack": false,
-            "steppedLine": false,
-            "targets": [
-              {
-                "expr": "node_load1{instance=~\"$server\"}",
-                "format": "time_series",
-                "intervalFactor": 4,
-                "legendFormat": "load 1m",
-                "refId": "A",
-                "step": 20,
-                "target": ""
+          { "title": "System load"
+          , "type": "graph"
+          , "datasource": "prometheus"
+          , "renderer": "flot"
+          , "span": 6
+          , "targets": [
+              { "expr": "node_load1{instance=~\"$server\"}"
+              , "format": "time_series"
+              , "legendFormat": "load 1m"
               },
-              {
-                "expr": "node_load5{instance=~\"$server\"}",
-                "format": "time_series",
-                "intervalFactor": 4,
-                "legendFormat": "load 5m",
-                "refId": "B",
-                "step": 20,
-                "target": ""
+              { "expr": "node_load5{instance=~\"$server\"}"
+              , "format": "time_series"
+              , "legendFormat": "load 5m"
               },
-              {
-                "expr": "node_load15{instance=~\"$server\"}",
-                "format": "time_series",
-                "intervalFactor": 4,
-                "legendFormat": "load 15m",
-                "refId": "C",
-                "step": 20,
-                "target": ""
-              }
-            ],
-            "thresholds": [],
-            "timeFrom": null,
-            "timeShift": null,
-            "title": "System load",
-            "tooltip": {
-              "msResolution": false,
-              "shared": true,
-              "sort": 0,
-              "value_type": "cumulative"
-            },
-            "type": "graph",
-            "xaxis": {
-              "buckets": null,
-              "mode": "time",
-              "name": null,
-              "show": true,
-              "values": []
-            },
-            "yaxes": [
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
-              },
-              {
-                "format": "short",
-                "label": null,
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true
+              { "expr": "node_load15{instance=~\"$server\"}"
+              , "format": "time_series"
+              , "legendFormat": "load 15m"
               }
             ]
+          , "xaxis": { "mode": "time" }
+          , "yaxes": [
+              { "format": "short" }
+            , { "format": "short" }]
           }
         ]
       },
