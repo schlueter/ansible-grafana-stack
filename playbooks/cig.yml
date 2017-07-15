@@ -1,8 +1,4 @@
 ---
-- hosts: all
-  gather_facts: no
-  roles: [ bootstrap ]
-
 - hosts: cig
   become: yes
   gather_facts: yes
