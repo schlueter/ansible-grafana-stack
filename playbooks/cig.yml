@@ -10,15 +10,19 @@
       apt: deb={{ grafana_release_url }}/{{ grafana_deb }}
       notify: restart grafana
 
-    - name: enable and restart some services
+    - name: enable grafana
       systemd:
         daemon_reload=yes
         enabled=yes
         name=grafana-server
 
+    - meta: flush_handlers
+
+    - wait_for: host={{ grafana_http_addr | default('localhost') }} port={{ grafana_http_port | default(3000) }}
+
     - name: login to grafana
-      uri: >
-        url: {{ grafana_url }}/login
+      uri:
+        url: "{{ grafana_url }}/login"
         method: POST
         body:
           user: "{{ grafana_admin_user | default('admin') }}"
