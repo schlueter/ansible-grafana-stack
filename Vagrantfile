@@ -10,6 +10,6 @@ Vagrant.configure(2) do |config|
     :ansible,
     playbook: 'playbooks/cig.yml',
     groups: { cig: %w(default) },
-    raw_arguments: %w(--diff -vv)
+    raw_arguments: %w(--diff -vvv)
   )
 end
