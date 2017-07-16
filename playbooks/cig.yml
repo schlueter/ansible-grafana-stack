@@ -1,45 +1,68 @@
 ---
 - hosts: cig
   become: yes
+  gather_facts: yes
+  vars:
+    grafana_url: http://{{ grafana_http_addr | default('localhost') }}:{{ grafana_http_port | default(3000) }}
+  roles:
+    - prometheus
   tasks:
-    - name: add influxdata repo key
-      apt_key: data={{ influxdata_repo_key }}
-
-    - name: add influxdata repo
-      apt_repository: repo={{ item }}
-      with_items:
-        - "deb https://repos.influxdata.com/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable"
-
-    - name: install packages
-      apt:
-        name={{ item }}
-        update_cache=yes
-        cache_valid_time=1800
-        state=latest
-      with_items:
-        - collectd
-        - influxdb
-
     - name: install grafana
       apt: deb={{ grafana_release_url }}/{{ grafana_deb }}
+      notify: restart grafana
 
-    - name: configure collectd
-      copy:
-        dest: /etc/collectd/collectd.conf
-        src: etc/collectd/collectd.conf
-
-    - name: configure influxdb
-      copy:
-        dest: /etc/influxdb/influxdb.conf
-        src: etc/influxdb/influxdb.conf
-
-    - name: enable and restart some services
+    - name: enable grafana
       systemd:
         daemon_reload=yes
         enabled=yes
-        state=restarted
-        name={{ item }}
-      with_items:
-        - collectd
-        - influxdb
-        - grafana-server
+        name=grafana-server
+
+    - meta: flush_handlers
+
+    - wait_for: host={{ grafana_http_addr | default('localhost') }} port={{ grafana_http_port | default(3000) }}
+
+    - name: login to grafana
+      uri:
+        url: "{{ grafana_url }}/login"
+        method: POST
+        body:
+          user: "{{ grafana_admin_user | default('admin') }}"
+          password: "{{ grafana_admin_password | default('admin') }}"
+        body_format: json
+      register: grafana_login
+
+    - name: extract grafana_sess
+      set_fact:
+        grafana_sess: "{{ grafana_login.set_cookie | regex_replace('grafana_sess=(.*?); .*', '\\1') }}"
+
+    - name: get current data sources
+      uri:
+        url: "{{ grafana_url }}/api/datasources"
+        headers:
+          Cookie: grafana_sess={{ grafana_sess }}
+      register: data_sources
+
+    - name: add prometheus data source
+      when: "'prometheus' not in data_sources.json | map(attribute='name')"
+      uri: &grafana_uri_args
+        url: "{{ grafana_url }}/api/datasources"
+        method: POST
+        body:
+          name: prometheus
+          type: prometheus
+          url: http://localhost:9090
+          access: proxy
+        body_format: json
+        headers:
+          Cookie: grafana_sess={{ grafana_sess }}
+
+    - name: Import dashboard
+      uri:
+        <<: *grafana_uri_args
+        url: "{{ grafana_url }}/api/dashboards/import"
+        body: "{{ prometheus_node_dashboard | to_json }}"
+
+  handlers:
+    - name: restart grafana
+      systemd: name=grafana-server state=restarted
+

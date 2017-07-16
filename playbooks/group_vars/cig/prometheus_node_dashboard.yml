@@ -1,0 +1,123 @@
+---
+prometheus_node_dashboard:
+  dashboard:
+    rows:
+    - panels:
+      - datasource: prometheus
+        renderer: flot
+        span: 6
+        targets:
+        - expr: 100 - (avg by (cpu) (irate(node_cpu{mode="idle", instance=~"$server"}[5m])) * 100)
+          legendFormat: '{{ ''{{cpu}}'' }}'
+        title: Idle cpu
+        type: graph
+        yaxes:
+        - format: percent
+          label: cpu usage
+          max: 100
+          min: 0
+          show: true
+        - {}
+      - datasource: prometheus
+        renderer: flot
+        span: 6
+        targets:
+        - expr: node_load1{instance=~"$server"}
+          format: time_series
+          legendFormat: load 1m
+        - expr: node_load5{instance=~"$server"}
+          format: time_series
+          legendFormat: load 5m
+        - expr: node_load15{instance=~"$server"}
+          format: time_series
+          legendFormat: load 15m
+        title: System load
+        type: graph
+        yaxes:
+        - format: short
+        - {}
+    - panels:
+      - datasource: prometheus
+        renderer: flot
+        seriesOverrides:
+        - alias: node_memory_SwapFree{instance="172.17.0.1:9100",job="prometheus"}
+          yaxis: 2
+        span: 12
+        targets:
+        - expr: node_memory_MemTotal{instance=~"$server"} - node_memory_MemAvailable{instance=~"$server"}
+          format: time_series
+          legendFormat: available
+        title: Memory
+        type: graph
+        yaxes:
+        - format: bytes
+        - format: short
+    - panels:
+      - datasource: prometheus
+        renderer: flot
+        seriesOverrides:
+        - alias: read
+          yaxis: 1
+        - alias: '{instance="172.17.0.1:9100"}'
+          yaxis: 2
+        - alias: io time
+          yaxis: 2
+        span: 10
+        targets:
+        - expr: sum by (instance) (irate(node_disk_bytes_read{instance=~"$server"}[5m]))
+          format: time_series
+          legendFormat: read
+        - expr: sum by (instance) (irate(node_disk_bytes_written{instance=~"$server"}[5m]))
+          format: time_series
+          legendFormat: written
+        - expr: sum by (instance) (irate(node_disk_io_time_ms{instance=~"$server"}[5m]))
+          format: time_series
+          legendFormat: io time
+        title: Disk usage
+        type: graph
+        yaxes:
+        - format: bytes
+        - format: ms
+      - datasource: prometheus
+        format: percentunit
+        gauge:
+          maxValue: 1
+          minValue: 0
+          show: true
+          thresholdLabels: false
+          thresholdMarkers: true
+        span: 2
+        targets:
+        - expr: min(node_filesystem_free{instance=~"$server"} / node_filesystem_size{instance=~"$server"})
+          format: time_series
+          step: 60
+        thresholds: 0.10, 0.25
+        title: Free disk space (lowest mountpoint)
+        type: singlestat
+    - panels:
+      - datasource: prometheus
+        renderer: flot
+        seriesOverrides:
+        - yaxis: 2
+        span: 12
+        targets:
+        - expr: irate(node_network_receive_bytes{instance=~"$server",device!~"lo"}[5m])
+          format: time_series
+          legendFormat: '{{ ''{{device}}'' }} received'
+        - expr: irate(node_network_transmit_bytes{instance=~"$server",device!~"lo"}[5m])
+          format: time_series
+          legendFormat: '{{ ''{{device}}'' }} transmitted '
+        title: Data transfer
+        type: graph
+        yaxes:
+        - format: Bps
+        - {}
+    templating:
+      list:
+      - current:
+          text: localhost:9100
+          value: localhost:9100
+        datasource: prometheus
+        name: server
+        query: label_values(node_boot_time, instance)
+    title: '{{ ansible_date_time.epoch }}'
