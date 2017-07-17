@@ -1,0 +1,9 @@
+[monitor]
+mgmt01.local
+
+[app]
+app01.local
+
+[monitor-targets:children]
+app
+monitor

@@ -1,11 +1,25 @@
 ---
-- hosts: cig
+- hosts: all
+  tasks:
+    - debug: msg={{ hostvars[item].ansible_default_ipv4.address }}
+      with_items: "{{ hostvars | list }}"
+      when: "'node_exporter' in hostvars[item].prometheus_components"
+    - fail: msg=debugging
+
+- hosts: prometheus
+  become: yes
+  gather_facts: yes
+  roles:
+    - prometheus
+
+- hosts: grafana
   become: yes
   gather_facts: yes
   vars:
     grafana_url: http://{{ grafana_http_addr | default('localhost') }}:{{ grafana_http_port | default(3000) }}
-  roles:
-    - prometheus
+  handlers:
+    - name: restart grafana
+      systemd: name=grafana-server state=restarted
   tasks:
     - name: install grafana
       apt: deb={{ grafana_release_url }}/{{ grafana_deb }}
@@ -16,8 +30,6 @@
         daemon_reload=yes
         enabled=yes
         name=grafana-server
-
-    - meta: flush_handlers
 
     - wait_for: host={{ grafana_http_addr | default('localhost') }} port={{ grafana_http_port | default(3000) }}
 
@@ -61,8 +73,4 @@
         <<: *grafana_uri_args
         url: "{{ grafana_url }}/api/dashboards/import"
         body: "{{ prometheus_node_dashboard | to_json }}"
-
-  handlers:
-    - name: restart grafana
-      systemd: name=grafana-server state=restarted
 
